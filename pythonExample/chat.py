@@ -32,10 +32,6 @@ while True:
             msg = input("send: ")
             msg1 = msg.encode('utf-8')
             client_socket.send(msg1)
-        
-            if int(msg) == 0:
-                client_socket.close()
-                exit(0)
         except KeyboardInterrupt:
             client_socket.close()
             exit(0)

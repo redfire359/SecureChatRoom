@@ -1,8 +1,8 @@
-
-#include <windows.h>
 #include <winsock2.h>
+#include <windows.h>
+#include <stdio.h>
 
-int main (){
+int main(){
 
     // Declare variables
     WSADATA wsaData; 
@@ -14,12 +14,12 @@ int main (){
     char IPaddress[16] = "192.168.56.3";
 
     const char *message = "Hello world";
-    char recvbuf[1024];
+    char recvbuf[512];
     int recvbuflen = sizeof(recvbuf);
 
     // Initialize WSA startup 
     
-    result = WSAStartup(MAKEWORK(2,2), &wsaData);
+    result = WSAStartup(MAKEWORD(2,2), &wsaData);
     if (result != 0 ){
         WSACleanup();
         printf("WSA error %i\n", result);
@@ -30,7 +30,7 @@ int main (){
     sok = socket(2,1,6);
 
     // add ip information 
-    ipInfo.sin_port = htons(5252);
+    ipInfo.sin_port = htons(443);
     int ipInfoSize = sizeof(ipInfo);
     const sockaddr *name = (SOCKADDR *)&ipInfo;
     ipInfo.sin_family = 2;
@@ -48,20 +48,22 @@ int main (){
 
     // Send message
     do {
-        cout << "Message: ";
-        cin >> message; 
-        send(sok, message, (int)strlen(message), 0 );
+       // printf("Message: ");
+       // scanf("%s", &message);
 
+      //  send(sok, message, (int)strlen(message), 0 );
+        printf("Waiting for a message...\n");
         result = recv(sok, recvbuf, recvbuflen, 0);
-        
+                recvbuf[result] = '\0';
+
         if(result > 0){
-            printf("Recieved: %d\n", result)
+            printf("Recieved: %s\n", recvbuf);
         }
 
     }while (result > 0);
 
 
-    closeSocket(sok);
+    closesocket(sok);
     WSACleanup();
     return 0;
 }
