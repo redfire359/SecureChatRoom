@@ -1,10 +1,4 @@
-**Todo**:
-- clean up code 
-- automate cert generation 
-- server handle multiple connections 
-- Add more output (who is sending message, etc)
-
-## Simple Chat Messaging Server/Client written in C++
+# Simple Chat Messaging Server/Client written in C++
 
 This was created in linux and then cross compiled to run on windows. Build steps are as follows: 
 
@@ -59,3 +53,11 @@ All SSL realted stuff implemented from OpenSSL's example code :
 https://github.com/openssl/openssl/blob/master/demos/sslecho/main.c#L139
 
 Shoutout chatgpt for fixing my cert. 
+
+
+**Extra/To-Do**:
+
+- clean up code 
+- automate cert generation 
+- server handle multiple connections 
+- Add more output (who is sending message, etc)
