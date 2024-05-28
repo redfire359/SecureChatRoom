@@ -38,7 +38,7 @@ static void configure_client_context(SSL_CTX *ctx){
     SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL);
    
     // loading self signed certificate 
-    if (!SSL_CTX_load_verify_locations(ctx, "cert.pem", NULL)) {
+    if (!SSL_CTX_load_verify_locations(ctx, "./certs/cert.pem", NULL)) {
         printf("[!] Unable to verify location of cert.pem\n");
         ERR_print_errors_fp(stderr);
         exit(0);
