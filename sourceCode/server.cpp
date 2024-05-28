@@ -17,7 +17,7 @@ x86_64-w64-mingw32-g++ server.cpp -o server.exe -I/opt/openssl/include/ -L/opt/o
 
 int port = 4433;                   
 
-char ipaddress[16] = "192.168.56.7";
+char ipaddress[16] = "192.168.56.9";
 
 ////////////////// CHANGE THIS //////////////////
 
