@@ -25,7 +25,7 @@ sudo make install
 
 `git clone https://github.com/redfire359/SecureChatRoom.git`
 
-5. Generate your certificates. Make sure you put the IP as the machine that will be running `server.exe`
+5. Generate your certificates and create a password when prompted. Make sure you put the IP as the machine that will be running `server.exe`
 
 ```
 cd SecureChatRoom/certs
@@ -40,6 +40,11 @@ x86_64-w64-mingw32-g++ sourceCode/server.cpp -o server.exe -I/opt/openssl/includ
 ```
 
 7. Execute the server first, then the client. **The .dll files must be in the same directory as the .exe** 
+
+```
+server.exe 10.10.10.1 4242  // Server is opening port 4242 
+client.exe 10.10.10.1 4242 // Client is connecting to 10.10.10.1 on port 4242
+```
 
     7.1 **Optional:** If you dont want to rely on the .dll file, you can also statically compile the .exe's (They will be ~6000 KB bigger however)
 

@@ -13,13 +13,6 @@ x86_64-w64-mingw32-g++ server.cpp -o server.exe -I/opt/openssl/include/ -L/opt/o
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-////////////////// CHANGE THIS //////////////////
-
-int port = 4433;                   
-
-char ipaddress[16] = "192.168.56.9";
-
-////////////////// CHANGE THIS //////////////////
 
 // SSL functions 
 static SSL_CTX* create_context(){
@@ -61,7 +54,22 @@ static void configure_server_context(SSL_CTX *ctx){
 
 
 
-int main(){
+int main(int argc, char *argv[]){
+
+     // User inputs 
+    char *server_ip ;
+    int port = -1;
+
+    // Check user inputs 
+    if(argc != 3){
+        printf("[!] Incorrect number of arguments entered\nCorrect Usage: client.exe <IP> <PORT>\n\t IP = IP address of the interface you'd like to bind to\n\t PORT = Port number that you want listen for connections on\n[*] Goodbye...\n");
+        exit(0);
+    }
+    else{
+        server_ip = argv[1] ;
+        int port = strtol(argv[2], NULL, 10);                       
+    }
+
 
     // Variables
     int optval = 1;
@@ -107,7 +115,7 @@ int main(){
     int ipInfoLen = sizeof(ipInfo);
     ipInfo.sin_family = AF_INET;
     ipInfo.sin_port = htons(port);
-    ipInfo.sin_addr.s_addr = inet_addr(ipaddress);
+    ipInfo.sin_addr.s_addr = inet_addr(server_ip);
 
     // Set sock options
     if(setsockopt(sok, SOL_SOCKET, SO_REUSEADDR, (char *) &optval, sizeof(optval)) < 0){

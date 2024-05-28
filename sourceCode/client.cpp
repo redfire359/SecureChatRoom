@@ -5,6 +5,7 @@ x86_64-w64-mingw32-g++ sourceCode/client.cpp -o client.exe -I/opt/openssl/includ
 // windows headers
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
 #include <winsock.h>
@@ -12,15 +13,6 @@ x86_64-w64-mingw32-g++ sourceCode/client.cpp -o client.exe -I/opt/openssl/includ
 // openssl headers
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-
-////////////////// CHANGE THIS //////////////////
-
-char server_ip[16] = "192.168.56.9";    
-
-int port = 4433;                       
-
-////////////////// CHANGE THIS //////////////////
-
 
 // SSL functions
 static SSL_CTX* create_context(){
@@ -53,31 +45,42 @@ static void configure_client_context(SSL_CTX *ctx){
     }
 }
 
-int main(){
-    
-    // Some Variables 
+int main(int argc, char *argv[]){
+
+    // User inputs 
+    char *server_ip ; 
+    int port = -1;
+
+    // Check user inputs 
+    if(argc != 3){
+        printf("[!] Incorrect number of arguments entered\nCorrect Usage: client.exe <SERVER-IP> <PORT>\n\t SERVER-IP = IP address of the server you'd like to connect to\n\t PORT = Port number that the server has opened for you to connect to\n[*] Goodbye...\n");
+        exit(0);
+    }
+    else{
+        server_ip = argv[1] ;
+        int port = strtol(argv[2], NULL, 10);                       
+    }
+
+    // Declaring Variables 
     SSL_CTX *ssl_ctx = NULL;
     SSL *ssl = NULL;
 
-///////may not need this section ///////////// 
-    char buffer[1024];
-    char *txbuf;
-
-    char rxbuf[128];
-    size_t rxcap = sizeof(rxbuf);
-    int rxlen;
-/////////////////////////////
-
     char message[40];
         int result ;
-
 
     WSADATA wsaData;
 
     struct sockaddr_in ipInfo ;
     int addr_len = sizeof(ipInfo);
 
-    //Create context for client
+    char buffer[1024];
+    char *txbuf;
+
+    char rxbuf[128];
+    size_t rxcap = sizeof(rxbuf);
+    int rxlen;
+
+    // Create context for client
     ssl_ctx = create_context();
 
     printf("[*] Setting up client...\n");
