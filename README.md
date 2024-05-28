@@ -1,6 +1,8 @@
-# Simple Chat Messaging Server/Client written in C++
+# Secure Chat Messaging Server/Client written in C++
 
-This was created in linux and then cross compiled to run on windows. Build steps are as follows: 
+This was created in linux and then cross compiled to run on windows. It is a chat server program secured with OpenSSL and written in C++. 
+
+Build steps are as follows: 
 
 1. Install mingw
 
@@ -48,16 +50,16 @@ x86_64-w64-mingw32-g++ client.cpp -o client.exe -I/opt/openssl/include/ -L/opt/o
 
 ## Credits 
 
-All SSL realted stuff implemented from OpenSSL's example code : 
+- All SSL realted stuff implemented from OpenSSL's example code : 
 
 https://github.com/openssl/openssl/blob/master/demos/sslecho/main.c#L139
 
-Shoutout chatgpt for fixing my cert. 
+- Shoutout chatgpt for fixing my cert. 
 
 
 **Extra/To-Do**:
 
 - clean up code 
-- automate cert generation 
 - server handle multiple connections 
 - Add more output (who is sending message, etc)
+    - multithreading 

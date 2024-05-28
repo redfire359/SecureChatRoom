@@ -140,7 +140,7 @@ int main(){
         // Keep sending messages
         while (true)   {
             printf(">> ");
-            scanf("%s", &message);
+             fgets(message, sizeof(message), stdin); 
 
             //exit upon empty message being sent
             if(message == NULL || message[0] == '\n'){
