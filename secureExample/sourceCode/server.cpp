@@ -1,5 +1,5 @@
 /*
-x86_64-w64-mingw32-g++ server.cpp -o server.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/  -Wl,-Bstatic -lssl -lcrypto -Wl,-Bdynamic -lws2_32 -lcrypt32
+x86_64-w64-mingw32-g++ server.cpp -o server.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/  -lssl -lcrypto -lws2_32 -lcrypt32
 */
 
 // windows headers
@@ -13,6 +13,13 @@ x86_64-w64-mingw32-g++ server.cpp -o server.exe -I/opt/openssl/include/ -L/opt/o
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
+////////////////// CHANGE THIS //////////////////
+
+int port = 443;                   
+
+char ipaddress[16] = "192.168.56.7";
+
+////////////////// CHANGE THIS //////////////////
 
 // SSL functions 
 static SSL_CTX* create_context(){
@@ -44,26 +51,27 @@ static void configure_server_context(SSL_CTX *ctx){
         ERR_print_errors_fp(stderr);
         exit(0);
     }
-    
+
+    if (!SSL_CTX_check_private_key(ctx)) {
+        printf("[!] Private key does not match the public certificate...\n");
+        ERR_print_errors_fp(stderr);
+        exit(0);
+    }
 }
 
 
 
 int main(){
 
-
     // Variables
-    int port = 443;                     // CHANGE THIS 
-    char ipaddress[16] = "192.168.56.3";// CHANGE THIS 
-
     int optval = 1;
     int result ; 
 
     SSL_CTX *ssl_ctx = NULL; 
     SSL *ssl = NULL;
 
-    int server = -1;
-    int client = -1; 
+    SOCKET server ;
+    SOCKET client ; 
 
     char rxbuf[128];
     size_t rxcap = sizeof(rxbuf);
@@ -71,15 +79,26 @@ int main(){
 
     static volatile bool server_running = true; 
 
+    WSADATA wsaData;
+
     // Start the server context
     ssl_ctx = create_context();
     configure_server_context(ssl_ctx);
 
+    // Initialize WSA startup
+    int startupResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+        if (startupResult != 0){
+            printf("[!] WSAStartup Failed...\n");
+            printf("[*] Reason: %i", WSAGetLastError());
+            WSACleanup();
+            exit(0);
+        }
 
     // Create a socket
     int sok = socket(AF_INET, SOCK_STREAM, 0);
     if (sok < 0){
         printf("[!] Socket failed to initalize...\n");
+        printf("[*] Reason: %i", WSAGetLastError());
         exit(0);
     }
 
@@ -110,10 +129,13 @@ int main(){
 
     while(server_running){
         
+        printf("[*] Listening for connections...\n");
+
         // wait for tcp connect from client 
-        client = accept(server, (struct sockaddr*) &ipInfo, &ipInfoLen);
+        client = accept(sok, (struct sockaddr*) &ipInfo, &ipInfoLen);
             if(client < 0){
                 printf("[!] Unable to accept client connection...\n");
+                printf("[*] Reason: %i", WSAGetLastError());
                 exit(0);
             }
 
@@ -128,6 +150,7 @@ int main(){
         }
 
         // wait for client to connect through SSL
+        
         if (SSL_accept(ssl) <= 0){
             printf("[!] Client unable to accept SSL connection...\n");
             ERR_print_errors_fp(stderr);
@@ -143,24 +166,24 @@ int main(){
                         printf("[!] Client closed the connection...\n");
                     }
                     else{
+                        /*  Prints out message length if needed
                         printf("[*] SSL_read returned: %d\n", rxlen);
+                        */
+                        rxbuf[rxlen] = 0; // null byte
+                        printf("[*] Message: %s\n", rxbuf);
                     }
-                    ERR_print_errors_fp(stderr);
-                    break;
+                    
+                    // kill switch          NOT WORKING RN 
+                    if(strcmp(rxbuf, "kill\n") == 0){
+                        printf("[!] Server recieved kill signal, shutting off...\n");
+                        server_running = false; 
+                        break; 
+                    }
                 }
-
-                // terminating null byte 
-                rxbuf[rxlen] = 0;
-
-                // kill switch 
-                if(strcmp(rxbuf, "kill\n") == 0){
-                    printf("[!] Server recieved kill signal, shutting off...\n");
-                    server_running = false; 
-                    break; 
-                }
+                
             }
         }
-        if(server_running){
+        if(!server_running){
             // Cleanup 
             SSL_shutdown(ssl);
             SSL_free(ssl);
