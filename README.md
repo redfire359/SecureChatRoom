@@ -46,7 +46,7 @@ server.exe 10.10.10.1 4242  // Server is opening port 4242
 client.exe 10.10.10.1 4242 // Client is connecting to 10.10.10.1 on port 4242
 ```
 
-    7.1 **Optional:** If you dont want to rely on the .dll file, you can also statically compile the .exe's (They will be ~6000 KB bigger however)
+7.1 **Optional:** If you dont want to rely on the .dll file, you can also statically compile the .exe's (They will be ~6000 KB bigger however)
 
 ```
 x86_64-w64-mingw32-g++ server.cpp -o server.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/  -Wl,-Bstatic -lssl -lcrypto -Wl,-Bdynamic -lws2_32 -lcrypt32
