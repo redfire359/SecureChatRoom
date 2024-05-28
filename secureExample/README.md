@@ -1,3 +1,11 @@
+Todo :
+- clean up code 
+- automate cert generation 
+- server handle multiple connections 
+- Add more output (who is sending message, etc)
+
+
+
 All SSL realted stuff implemented from OpenSSL's example code : 
 
 https://github.com/openssl/openssl/blob/master/demos/sslecho/main.c#L139

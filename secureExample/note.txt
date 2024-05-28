@@ -1,1 +1,0 @@
-900E0000:error:0A000412:SSL routines:ssl3_read_bytes:ssl/tls alert bad certificate:ssl/record/rec_layer_s3.c:907:SSL alert number 42

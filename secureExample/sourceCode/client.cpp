@@ -15,9 +15,9 @@ x86_64-w64-mingw32-g++ sourceCode/client.cpp -o client.exe -I/opt/openssl/includ
 
 ////////////////// CHANGE THIS //////////////////
 
-char server_ip[16] = "192.168.56.3";    
+char server_ip[16] = "192.168.56.7";    
 
-int port = 443;                       
+int port = 4433;                       
 
 ////////////////// CHANGE THIS //////////////////
 
