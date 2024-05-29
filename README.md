@@ -57,7 +57,7 @@ x86_64-w64-mingw32-g++ client.cpp -o client.exe -I/opt/openssl/include/ -L/opt/o
 
 - All SSL realted stuff implemented from OpenSSL's example code : 
 
-https://github.com/openssl/openssl/blob/master/demos/sslecho/main.c#L139
+https://github.com/openssl/openssl/blob/master/demos/sslecho/main.c
 
 - Shoutout chatgpt for fixing my cert. 
 
@@ -67,4 +67,5 @@ https://github.com/openssl/openssl/blob/master/demos/sslecho/main.c#L139
 - clean up code 
 - server handle multiple connections 
 - Add more output (who is sending message, etc)
-    - multithreading 
+    - multithreading (passing args correctly)
+- Fix the kill switch

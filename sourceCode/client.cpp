@@ -9,6 +9,7 @@ x86_64-w64-mingw32-g++ sourceCode/client.cpp -o client.exe -I/opt/openssl/includ
 #include <signal.h>
 #include <unistd.h>
 #include <winsock.h>
+#include <pthread.h>
 
 // openssl headers
 #include <openssl/ssl.h>
@@ -45,6 +46,7 @@ static void configure_client_context(SSL_CTX *ctx){
     }
 }
 
+
 int main(int argc, char *argv[]){
 
     // User inputs 
@@ -79,6 +81,7 @@ int main(int argc, char *argv[]){
     char rxbuf[128];
     size_t rxcap = sizeof(rxbuf);
     int rxlen;
+
 
     // Create context for client
     ssl_ctx = create_context();
@@ -142,7 +145,7 @@ int main(int argc, char *argv[]){
 
         // Keep sending messages
         while (true)   {
-            printf(">> ");
+            printf("\n>> ");
              fgets(message, sizeof(message), stdin); 
 
             //exit upon empty message being sent
@@ -156,11 +159,12 @@ int main(int argc, char *argv[]){
                 break;
             }
 
-            //Can add read here later if we want
         }
+       
     }
-
+ 
     printf("[!] Client Exiting...\n");
+       
 
 exit: 
     if(ssl != NULL){

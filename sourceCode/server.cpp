@@ -8,6 +8,7 @@ x86_64-w64-mingw32-g++ server.cpp -o server.exe -I/opt/openssl/include/ -L/opt/o
 #include <signal.h>
 #include <unistd.h>
 #include <winsock.h>
+#include <pthread.h>
 
 // openssl headers
 #include <openssl/ssl.h>
@@ -89,6 +90,8 @@ int main(int argc, char *argv[]){
 
     WSADATA wsaData;
 
+    char message[40];
+
     // Start the server context
     ssl_ctx = create_context();
     configure_server_context(ssl_ctx);
@@ -167,8 +170,8 @@ int main(int argc, char *argv[]){
         else{
             printf("[*] Client SSL connection accepted...\n");
 
-            // continue to get messages from the connection 
             while (true){
+            
                 if((rxlen = SSL_read(ssl, rxbuf, rxcap)) >= 0){
                     if(rxlen == 0){
                         printf("[!] Client closed the connection...\n");
@@ -190,6 +193,7 @@ int main(int argc, char *argv[]){
                 }
                 
             }
+           
         }
         if(!server_running){
             // Cleanup 
@@ -197,6 +201,7 @@ int main(int argc, char *argv[]){
             SSL_free(ssl);
             close(client);
         }
+         
     }
 
     printf("[!] Server exiting...\n");
