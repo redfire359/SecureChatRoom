@@ -75,8 +75,10 @@ DWORD WINAPI t1(void* data){
                 break;
             }
             else{
-                rxbuf[rxlen] = 0; // Null byte 
-                printf("\n[*] Message: %s\n", rxbuf);
+                rxbuf[rxlen] = 0; // Null byte
+                fflush(stdout); 
+                printf("\r[*] Message: %s\n", rxbuf);
+                fflush(stdout);
                 printf(">>");
             }
         }
