@@ -2,7 +2,9 @@
 
 This was created in linux and then cross compiled to run on windows. It is a chat server program secured with OpenSSL and written in C++. 
 
-Build steps are as follows: 
+![](https://github.com/redfire359/SecureChatRoom/demo.gif)
+
+## Build steps are as follows: 
 
 1. Install mingw
 
@@ -32,7 +34,7 @@ cd SecureChatRoom/certs
 ./GenerateCertificate.sh 127.0.0.1
 ```
 
-6. Compile the server and client. Ensure the IPs (located right above the main() function) in the source code are the same one you entered for step 5. Also, make sure to change the -I and -L directory in the below command if you changed it in step 3.
+6. Compile the server and client. Ensure the IPs (located right above the main() function) in the source code are the same one you entered for step 5. Also, make sure to change the -I and -L directory in the below command if you changed it in step 3. (Or run `./Compile-client-server.sh`)
 
 ```
 x86_64-w64-mingw32-g++ sourceCode/client.cpp -o client.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/ -lssl -lcrypto -lws2_32 -lcrypt32
