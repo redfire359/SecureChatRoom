@@ -46,6 +46,42 @@ static void configure_client_context(SSL_CTX *ctx){
     }
 }
 
+// SSL Struct we can use to pass in SSL var to the thread
+
+struct SSLStruct{
+    SSL *ssl ;
+};  
+
+
+// Recv thread, will constantly read + print messages
+DWORD WINAPI t1(void* data){
+
+    // grabbing ssl instance from data 
+    SSLStruct* sslInstance = (SSLStruct*)data;
+    SSL *ssl = sslInstance->ssl;
+
+    char rxbuf[128];
+    size_t rxcap = sizeof(rxbuf);
+    int rxlen;
+
+    while(true){
+        if((rxlen = SSL_read(ssl, rxbuf, rxcap)) >= 0){
+            
+            if(rxlen == 0 || strncmp(rxbuf, "kill", 4) == 0){
+                printf("[!] Server closed the connection...\n");
+                break;
+            }
+            else{
+                rxbuf[rxlen] = 0; // Null byte 
+                printf("\n[*] Message: %s\n", rxbuf);
+                printf(">>");
+            }
+        }
+    }
+
+    return 0;
+}
+
 
 int main(int argc, char *argv[]){
 
@@ -65,7 +101,7 @@ int main(int argc, char *argv[]){
 
     // Declaring Variables 
     SSL_CTX *ssl_ctx = NULL;
-    SSL *ssl = NULL;
+    SSLStruct sslStr;
 
     char message[40];
         int result ;
@@ -78,10 +114,8 @@ int main(int argc, char *argv[]){
     char buffer[1024];
     char *txbuf;
 
-    char rxbuf[128];
-    size_t rxcap = sizeof(rxbuf);
-    int rxlen;
-
+    HANDLE hThread;
+    DWORD dwThreadID;
 
     // Create context for client
     ssl_ctx = create_context();
@@ -125,51 +159,57 @@ int main(int argc, char *argv[]){
     // Now that we have connected, lets upgrade to SSL
 
     // Create the SSL structure 
-    ssl = SSL_new(ssl_ctx);
-    if(!SSL_set_fd(ssl, client)){
+    sslStr.ssl = SSL_new(ssl_ctx);
+    if(!SSL_set_fd(sslStr.ssl, client)){
         printf("[!] Unable to create client SSL structre...\n");
         ERR_print_errors_fp(stderr);
         goto exit;
     }
 
-    SSL_set_tlsext_host_name(ssl, server_ip); // set hostname
-    if(!SSL_set1_host(ssl, server_ip)){     // checking hostname 
+    SSL_set_tlsext_host_name(sslStr.ssl, server_ip); // set hostname
+    if(!SSL_set1_host(sslStr.ssl, server_ip)){     // checking hostname 
         printf("[!] Hostname check failed...\n");
         ERR_print_errors_fp(stderr);
         goto exit;
     }
 
     // Now we can connect 
-    if (SSL_connect(ssl) == 1){
+    if (SSL_connect(sslStr.ssl) == 1){
         printf("[*] Successful SSL connection innitiated\n");
 
-        // Keep sending messages
-        while (true)   {
-            printf("\n>> ");
-             fgets(message, sizeof(message), stdin); 
+        // Start recieve thread
+        hThread = CreateThread(NULL, 0, t1, &sslStr, 0, NULL);
 
-            //exit upon empty message being sent
-            if(message == NULL || message[0] == '\n'){
+        // Loop to get messages
+        while (true)   {
+            printf(">> ");
+            fgets(message, sizeof(message), stdin); 
+
+            // Exit upon empty message being sent
+            if(strncmp(message, "kill", 4) == 0){
+                printf("[*] kill command recieved, exiting...\n");
                 break;
             }
 
-            if ((result = SSL_write(ssl, message, (int)strlen(message))) <= 0){
+            if ((result = SSL_write(sslStr.ssl, message, (int)strlen(message))) <= 0){
                 printf("[!] Connection has been closed...\n");
                 ERR_print_errors_fp(stderr);
                 break;
             }
 
         }
-       
+
+        // Close thread
+        CloseHandle(hThread);
     }
- 
+    
     printf("[!] Client Exiting...\n");
        
 
 exit: 
-    if(ssl != NULL){
-        SSL_shutdown(ssl);
-        SSL_free(ssl);
+    if(sslStr.ssl != NULL){
+        SSL_shutdown(sslStr.ssl);
+        SSL_free(sslStr.ssl);
     }
     SSL_CTX_free(ssl_ctx);
 

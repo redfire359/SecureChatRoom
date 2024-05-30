@@ -53,7 +53,37 @@ static void configure_server_context(SSL_CTX *ctx){
     }
 }
 
+struct SSLStruct{
+    SSL *ssl;
+};
 
+DWORD WINAPI t1(void* data){
+
+    // grabbing ssl instance from data 
+    SSLStruct* sslInstance = (SSLStruct*)data;
+    SSL *ssl = sslInstance->ssl;
+
+    char rxbuf[128];
+    size_t rxcap = sizeof(rxbuf);
+    int rxlen;
+
+    while(true){
+        if((rxlen = SSL_read(ssl, rxbuf, rxcap)) >= 0){
+            
+            if(rxlen == 0 || strncmp(rxbuf, "kill", 4) == 0){
+                printf("[!] Client closed the connection...\n");
+                break;
+            }
+            else{
+                rxbuf[rxlen] = 0; // Null byte 
+                printf("\n[*] Message: %s\n", rxbuf);
+                printf(">>");
+            }
+        }
+    }
+
+    return 0;
+}
 
 int main(int argc, char *argv[]){
 
@@ -77,20 +107,20 @@ int main(int argc, char *argv[]){
     int result ; 
 
     SSL_CTX *ssl_ctx = NULL; 
-    SSL *ssl = NULL;
+    SSLStruct sslStr;
 
     SOCKET server ;
     SOCKET client ; 
-
-    char rxbuf[128];
-    size_t rxcap = sizeof(rxbuf);
-    int rxlen;
 
     static volatile bool server_running = true; 
 
     WSADATA wsaData;
 
     char message[40];
+
+
+    HANDLE hThread;
+    DWORD dwThreadID;
 
     // Start the server context
     ssl_ctx = create_context();
@@ -153,8 +183,8 @@ int main(int argc, char *argv[]){
         printf("[*] Client connection accepted...\n");
 
         // create new SSL structure with the new client
-        ssl = SSL_new(ssl_ctx);
-        if(!SSL_set_fd(ssl, client)){
+        sslStr.ssl = SSL_new(ssl_ctx);
+        if(!SSL_set_fd(sslStr.ssl, client)){
             printf("[!] Unable to create new SSL structure with client\n");
             ERR_print_errors_fp(stderr);
             exit(0);
@@ -162,7 +192,7 @@ int main(int argc, char *argv[]){
 
         // wait for client to connect through SSL
         
-        if (SSL_accept(ssl) <= 0){
+        if (SSL_accept(sslStr.ssl) <= 0){
             printf("[!] Client unable to accept SSL connection...\n");
             ERR_print_errors_fp(stderr);
             exit(0);
@@ -170,35 +200,34 @@ int main(int argc, char *argv[]){
         else{
             printf("[*] Client SSL connection accepted...\n");
 
+            // Start the recieve thread
+            hThread = CreateThread(NULL, 0, t1, &sslStr, 0, NULL);
+
             while (true){
             
-                if((rxlen = SSL_read(ssl, rxbuf, rxcap)) >= 0){
-                    if(rxlen == 0){
-                        printf("[!] Client closed the connection...\n");
-                    }
-                    else{
-                        /*  Prints out message length if needed
-                        printf("[*] SSL_read returned: %d\n", rxlen);
-                        */
-                        rxbuf[rxlen] = 0; // null byte
-                        printf("[*] Message: %s\n", rxbuf);
-                    }
-                    
-                    // kill switch          NOT WORKING RN 
-                    if(strcmp(rxbuf, "kill\n") == 0){
-                        printf("[!] Server recieved kill signal, shutting off...\n");
-                        server_running = false; 
-                        break; 
-                    }
+                printf(">> ");
+                fgets(message, sizeof(message), stdin); 
+
+                // Exit upon empty message being sent
+                if(strncmp(message, "kill", 4) == 0){
+                    printf("[*] kill command recieved, exiting...\n");
+                    break;
                 }
-                
+
+                if ((result = SSL_write(sslStr.ssl, message, (int)strlen(message))) <= 0){
+                    printf("[!] Connection has been closed...\n");
+                    ERR_print_errors_fp(stderr);
+                    break;
+                }
+
             }
-           
+                      
         }
         if(!server_running){
             // Cleanup 
-            SSL_shutdown(ssl);
-            SSL_free(ssl);
+            CloseHandle(hThread);
+            SSL_shutdown(sslStr.ssl);
+            SSL_free(sslStr.ssl);
             close(client);
         }
          
