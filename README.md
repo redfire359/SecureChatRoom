@@ -1,6 +1,6 @@
 # Secure Chat Messaging Server/Client written in C/C++
 
-This was created in linux and then cross compiled to run on windows. It is a chat server program secured with OpenSSL and written in C++. 
+This was created in linux and then cross compiled to run on windows. It is a chat server program secured with OpenSSL and written in C/C++. 
 
 ![](https://github.com/redfire359/SecureChatRoom/demo.gif)
 
