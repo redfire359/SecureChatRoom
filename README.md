@@ -5,8 +5,7 @@ This was created in linux and then cross compiled to run on windows. It is a cha
 
 ## Build steps are as follows: 
 
-https://github.com/redfire359/SecureChatRoom/assets/112633870/06625513-2625-4dbd-9cbf-ec6f4d5212bb
-
+https://user-images.githubusercontent.com/112633870/06625513-2625-4dbd-9cbf-ec6f4d5212bb.gif
 
 
 1. Install mingw
