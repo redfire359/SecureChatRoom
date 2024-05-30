@@ -68,8 +68,7 @@ https://github.com/openssl/openssl/blob/master/demos/sslecho/main.c
 
 **Extra/To-Do**:
 
-- clean up code 
-- server handle multiple connections 
+- Clean up code 
+- Server handle multiple connections 
 - Add more output (who is sending message, etc)
-    - multithreading (passing args correctly)
-- Fix the kill switch
+ 
