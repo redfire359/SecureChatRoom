@@ -9,6 +9,7 @@ x86_64-w64-mingw32-g++ server.cpp -o server.exe -I/opt/openssl/include/ -L/opt/o
 #include <unistd.h>
 #include <winsock.h>
 #include <pthread.h>
+#include <stdbool.h>
 
 // openssl headers
 #include <openssl/ssl.h>
@@ -53,16 +54,10 @@ static void configure_server_context(SSL_CTX *ctx){
     }
 }
 
-struct SSLStruct{
-    SSL *ssl;
-};
 
-DWORD WINAPI t1(void* data){
+DWORD WINAPI t1(LPVOID lpThreadParam){
 
-    // grabbing ssl instance from data 
-    SSLStruct* sslInstance = (SSLStruct*)data;
-    SSL *ssl = sslInstance->ssl;
-
+    SSL *ssl = *(SSL **)lpThreadParam;
     char rxbuf[128];
     size_t rxcap = sizeof(rxbuf);
     int rxlen;
@@ -109,7 +104,7 @@ int main(int argc, char *argv[]){
     int result ; 
 
     SSL_CTX *ssl_ctx = NULL; 
-    SSLStruct sslStr;
+    SSL *ssl;
 
     SOCKET server ;
     SOCKET client ; 
@@ -120,9 +115,7 @@ int main(int argc, char *argv[]){
 
     char message[40];
 
-
     HANDLE hThread;
-    DWORD dwThreadID;
 
     // Start the server context
     ssl_ctx = create_context();
@@ -185,8 +178,8 @@ int main(int argc, char *argv[]){
         printf("[*] Client connection accepted...\n");
 
         // create new SSL structure with the new client
-        sslStr.ssl = SSL_new(ssl_ctx);
-        if(!SSL_set_fd(sslStr.ssl, client)){
+        ssl = SSL_new(ssl_ctx);
+        if(!SSL_set_fd(ssl, client)){
             printf("[!] Unable to create new SSL structure with client\n");
             ERR_print_errors_fp(stderr);
             exit(0);
@@ -194,7 +187,7 @@ int main(int argc, char *argv[]){
 
         // wait for client to connect through SSL
         
-        if (SSL_accept(sslStr.ssl) <= 0){
+        if (SSL_accept(ssl) <= 0){
             printf("[!] Client unable to accept SSL connection...\n");
             ERR_print_errors_fp(stderr);
             exit(0);
@@ -202,10 +195,10 @@ int main(int argc, char *argv[]){
         else{
             printf("[*] Client SSL connection accepted...\n");
 
-            // Start the recieve thread
-            hThread = CreateThread(NULL, 0, t1, &sslStr, 0, NULL);
+            //Start the recieve thread
+            hThread = CreateThread(NULL, 0, t1, &ssl, 0, NULL);
 
-            while (true){
+            while (1){
             
                 printf(">> ");
                 fgets(message, sizeof(message), stdin); 
@@ -216,7 +209,7 @@ int main(int argc, char *argv[]){
                     break;
                 }
 
-                if ((result = SSL_write(sslStr.ssl, message, (int)strlen(message))) <= 0){
+                if ((result = SSL_write(ssl, message, (int)strlen(message))) <= 0){
                     printf("[!] Connection has been closed...\n");
                     ERR_print_errors_fp(stderr);
                     break;
@@ -228,8 +221,8 @@ int main(int argc, char *argv[]){
         if(!server_running){
             // Cleanup 
             CloseHandle(hThread);
-            SSL_shutdown(sslStr.ssl);
-            SSL_free(sslStr.ssl);
+            SSL_shutdown(ssl);
+            SSL_free(ssl);
             close(client);
         }
          
