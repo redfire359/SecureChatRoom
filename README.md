@@ -1,4 +1,4 @@
-# Secure Chat Messaging Server/Client written in C++
+# Secure Chat Messaging Server/Client written in C/C++
 
 This was created in linux and then cross compiled to run on windows. It is a chat server program secured with OpenSSL and written in C++. 
 
@@ -37,8 +37,8 @@ cd SecureChatRoom/certs
 6. Compile the server and client. Ensure the IPs (located right above the main() function) in the source code are the same one you entered for step 5. Also, make sure to change the -I and -L directory in the below command if you changed it in step 3. (Or run `./Compile-client-server.sh`)
 
 ```
-x86_64-w64-mingw32-g++ sourceCode/client.cpp -o client.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/ -lssl -lcrypto -lws2_32 -lcrypt32
-x86_64-w64-mingw32-g++ sourceCode/server.cpp -o server.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/ -lssl -lcrypto -lws2_32 -lcrypt32
+x86_64-w64-mingw32-gcc sourceCode/client.cpp -o client.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/ -lssl -lcrypto -lws2_32 -lcrypt32
+x86_64-w64-mingw32-gcc sourceCode/server.cpp -o server.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/ -lssl -lcrypto -lws2_32 -lcrypt32
 ```
 
 7. Execute the server first, then the client. **The .dll files must be in the same directory as the .exe** 
