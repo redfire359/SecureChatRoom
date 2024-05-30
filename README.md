@@ -2,7 +2,7 @@
 
 This was created in linux and then cross compiled to run on windows. It is a chat server program secured with OpenSSL and written in C/C++. 
 
-![](./demo.gif)
+![](./demo.mp4)
 
 ## Build steps are as follows: 
 
