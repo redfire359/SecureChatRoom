@@ -1,6 +1,6 @@
-# Secure Chat Messaging Server/Client written in C/C++
+# Secure Chat Messaging Server/Client written in C
 
-This was created in linux and then cross compiled to run on windows. It is a chat server program secured with OpenSSL and written in C/C++. 
+This was created in linux and then cross compiled to run on windows. It is a chat server program secured with OpenSSL and written in C.
 
 
 https://github.com/redfire359/SecureChatRoom/assets/112633870/7af46407-1a8f-4e39-85f7-fb153ecdb276
@@ -36,11 +36,11 @@ cd SecureChatRoom/certs
 ./GenerateCertificate.sh 127.0.0.1
 ```
 
-6. Compile the server and client. Ensure the IPs (located right above the main() function) in the source code are the same one you entered for step 5. Also, make sure to change the -I and -L directory in the below command if you changed it in step 3. (Or run `./Compile-client-server.sh`)
+6. Compile the server and client. Ensure the IPs (located right above the main() function) in the source code are the same one you entered for step 5. Also, make sure to change the -I and -L directory in the below command if you changed it in step 3. (Or run `./compile.sh`)
 
 ```
-x86_64-w64-mingw32-gcc sourceCode/client.cpp -o client.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/ -lssl -lcrypto -lws2_32 -lcrypt32
-x86_64-w64-mingw32-gcc sourceCode/server.cpp -o server.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/ -lssl -lcrypto -lws2_32 -lcrypt32
+x86_64-w64-mingw32-gcc sourceCode/client.c -o client.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/ -lssl -lcrypto -lws2_32 -lcrypt32
+x86_64-w64-mingw32-gcc sourceCode/server.c -o server.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/ -lssl -lcrypto -lws2_32 -lcrypt32
 ```
 
 7. Execute the server first, then the client. **The .dll files must be in the same directory as the .exe** 
@@ -53,8 +53,8 @@ client.exe 10.10.10.1 4242 // Client is connecting to 10.10.10.1 on port 4242
 7.1 **Optional:** If you dont want to rely on the .dll file, you can also statically compile the .exe's (They will be ~6000 KB bigger however)
 
 ```
-x86_64-w64-mingw32-g++ server.cpp -o server.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/  -Wl,-Bstatic -lssl -lcrypto -Wl,-Bdynamic -lws2_32 -lcrypt32
-x86_64-w64-mingw32-g++ client.cpp -o client.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/  -Wl,-Bstatic -lssl -lcrypto -Wl,-Bdynamic -lws2_32 -lcrypt32
+x86_64-w64-mingw32-gcc server.c -o server.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/  -Wl,-Bstatic -lssl -lcrypto -Wl,-Bdynamic -lws2_32 -lcrypt32
+x86_64-w64-mingw32-gcc client.c -o client.exe -I/opt/openssl/include/ -L/opt/openssl/lib64/  -Wl,-Bstatic -lssl -lcrypto -Wl,-Bdynamic -lws2_32 -lcrypt32
 ```
 
 ## Credits 
