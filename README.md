@@ -2,10 +2,12 @@
 
 This was created in linux and then cross compiled to run on windows. It is a chat server program secured with OpenSSL and written in C/C++. 
 
-https://github.com/redfire359/SecureChatRoom/assets/112633870/c7f9ff7a-c9af-4237-b714-89e9b874ead3
-
 
 ## Build steps are as follows: 
+
+https://github.com/redfire359/SecureChatRoom/assets/112633870/06625513-2625-4dbd-9cbf-ec6f4d5212bb
+
+
 
 1. Install mingw
 
